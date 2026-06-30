@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NearMarkt</title>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2N86C2KD2R"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-2N86C2KD2R');
+    </script>
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "xeazdmfvt5");
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f0f4f0;
+            min-height: 100vh;
+        }
+
+        /* LOCATION MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .modal-box h2 {
+            color: #2d7a3a;
+            margin-bottom: 12px;
+        }
+
+        .modal-box p {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #2d7a3a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #235e2d;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            color: #999;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+
+        /* LANGUAGE BAR */
+        .language-bar {
+            position: fixed;
+            top: 12px;
+            right: 16px;
+            z-index: 1000;
+        }
+
+        .language-bar select {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* APP LAYOUT */
+        .app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: all 0.4s ease;
+        }
+
+        .app.searched {
+            align-items: flex-start;
+            padding: 0;
+        }
+
+        /* SEARCH PANEL */
+        .search-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+        }
+
+        .app.searched .search-panel {
+            width: 280px;
+            min-width: 260px;
+            border-radius: 0;
+            height: 100vh;
+            padding: 24px 16px;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d7a3a;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .tagline {
+            color: #666;
+            margin-bottom: 28px;
+            font-size: 0.95rem;
+        }
+
+        .app.searched .tagline {
+            display: none;
+        }
+
+        .app.searched .logo {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .search-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2d7a3a;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #2d7a3a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: #235e2d;
+        }
+
+        .quick-searches {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .quick-searches p {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .quick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            background: #f0f4f0;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #444;
+        }
+
+        .tag:hover {
+            background: #2d7a3a;
+            color: white;
+            border-color: #2d7a3a;
+        }
+
+        /* RESULTS PANEL */
+        .results-panel {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: none;
+            min-width: 0;
+        }
+
+        .app.searched .results-panel {
+            display: block;
+        }
+
+        .results-header {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .results-header span {
+            color: #2d7a3a;
+            font-weight: bold;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .store-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border: 2px solid transparent;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .store-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .store-card.best {
+            border-color: #2d7a3a;
+        }
+
+        .best-badge {
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            background: #2d7a3a;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .card-store-name {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #222;
+            margin-bottom: 6px;
+            margin-top: 4px;
+        }
+
+        .card-address {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 14px;
+        }
+
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-price {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #2d7a3a;
+        }
+
+        .card-distance {
+            background: #f0f4f0;
+            color: #555;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #999;
+            margin-top: 60px;
+            font-size: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: #999;
+            margin-top: 60px;
+        }
+
+        .rtl {
+            direction: rtl;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOCATION MODAL -->
+    <div class="modal-overlay" id="locationModal">
+        <div class="modal-box">
+            <div class="modal-icon">📍</div>
+            <h2>Enable Location</h2>
+            <p>NearMarkt needs your location to show the nearest stores and accurate distances.</p>
+            <button class="btn-primary" onclick="enableLocation()">📍 Enable My Location</button>
+            <button class="btn-secondary" onclick="skipLocation()">Skip — use default location</button>
+        </div>
+    </div>
+
+    <!-- LANGUAGE SELECTOR -->
+    <div class="language-bar">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="en">🇬🇧 English</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="pt">🇵🇹 Português</option>
+            <option value="pl">🇵🇱 Polski</option>
+            <option value="tr">🇹🇷 Türkçe</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="hi">🇮🇳 हिन्दी</option>
+        </select>
+    </div>
+
+    <div class="app" id="app">
+
+        <!-- LEFT: Search Panel -->
+        <div class="search-panel" id="searchPanel">
+            <div class="logo" onclick="goHome()">🛒 NearMarkt</div>
+            <div class="tagline" id="tagline">Find it cheap. Find it near.</div>
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="e.g. eggs, milk, rice..."
+                    onkeydown="if(event.key==='Enter') search()"
+                />
+                <button onclick="search()" id="searchBtn">Search</button>
+            </div>
+            <div class="quick-searches">
+                <p id="popularLabel">Popular searches</p>
+                <div class="quick-tags">
+                    <span class="tag" onclick="quickSearch('eggs')">🥚 <span class="t-eggs">Eggs</span></span>
+                    <span class="tag" onclick="quickSearch('milk')">🥛 <span class="t-milk">Milk</span></span>
+                    <span class="tag" onclick="quickSearch('rice')">🍚 <span class="t-rice">Rice</span></span>
+                    <span class="tag" onclick="quickSearch('pasta')">🍝 <span class="t-pasta">Pasta</span></span>
+                    <span class="tag" onclick="quickSearch('bread')">🍞 <span class="t-bread">Bread</span></span>
+                    <span class="tag" onclick="quickSearch('chicken')">🍗 <span class="t-chicken">Chicken</span></span>
+                    <span class="tag" onclick="quickSearch('onions')">🧅 <span class="t-onions">Onions</span></span>
+                    <span class="tag" onclick="quickSearch('bananas')">🍌 <span class="t-bananas">Bananas</span></span>
+                    <span class="tag" onclick="quickSearch('yogurt')">🥣 <span class="t-yogurt">Yogurt</span></span>
+                    <span class="tag" onclick="quickSearch('potatoes')">🥔 <span class="t-potatoes">Potatoes</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Results Panel -->
+        <div class="results-panel" id="resultsPanel">
+            <div id="results"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1RmtEaNfQO6PZA4skJvdgnTjdd6JMszMdR4QGsCCvGiQ/gviz/tq?tqx=out:json&sheet=NearMarkt%20Prices";
+
+        // Default location — SRH Hamburg
+        let userLat = 53.5507;
+        let userLng = 10.0007;
+        let currentLang = 'en';
+        const startTime = Date.now();
+
+        // ─── ANALYTICS TRACKING ───────────────────────────────
+        function trackEvent(name, data) {
+            const payload = { ...data, timestamp: new Date().toISOString() };
+
+            // Send to Clarity
+            if (window.clarity) window.clarity("set", name, JSON.stringify(payload));
+
+            // Send to Google Analytics 4
+            if (window.gtag) gtag('event', name, payload);
+
+            console.log("NearMarkt Event:", name, payload);
+        }
+
+        window.addEventListener('load', () => {
+            trackEvent("page_visit", { language: navigator.language });
+        });
+
+        window.addEventListener('beforeunload', () => {
+            const seconds = Math.round((Date.now() - startTime) / 1000);
+            trackEvent("session_end", { duration_seconds: seconds });
+        });
+
+        // ─── LOCATION ─────────────────────────────────────────
+        function enableLocation() {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    userLat = position.coords.latitude;
+                    userLng = position.coords.longitude;
+                    trackEvent("location_granted", { lat: userLat, lng: userLng });
+                    document.getElementById('locationModal').style.display = 'none';
+                },
+                () => {
+                    trackEvent("location_denied", {});
+                    document.getElementById('locationModal').style.display = 'none';
+                }
+            );
+        }
+
+        function skipLocation() {
+            trackEvent("location_skipped", {});
+            document.getElementById('locationModal').style.display = 'none';
+        }
+
+        // ─── LANGUAGE ─────────────────────────────────────────
+        const translations = {
+            en: {
+                tagline: "Find it cheap. Find it near.",
+                searchBtn: "Search",
+                placeholder: "e.g. eggs, milk, rice...",
+                popular: "Popular searches",
+                loading: "📍 Finding best prices...",
+                noResults: "No results found for",
+                noResultsSub: "Try eggs, milk, rice, or pasta",
+                storesFound: "stores found",
+                showingResults: "Showing results for",
+                bestPrice: "🏆 Best Price",
+                kmAway: "km away",
+                eggs: "Eggs", milk: "Milk", rice: "Rice", pasta: "Pasta",
+                bread: "Bread", chicken: "Chicken", onions: "Onions",
+                bananas: "Bananas", yogurt: "Yogurt", potatoes: "Potatoes"
+            },
+            de: {
+                tagline: "Günstig finden. Nah finden.",
+                searchBtn: "Suchen",
+                placeholder: "z.B. Eier, Milch, Reis...",
+                popular: "Beliebte Suchen",
+                loading: "📍 Beste Preise werden gesucht...",
+                noResults: "Keine Ergebnisse für",
+                noResultsSub: "Versuche Eier, Milch, Reis oder Nudeln",
+                storesFound: "Geschäfte gefunden",
+                showingResults: "Ergebnisse für",
+                bestPrice: "🏆 Bester Preis",
+                kmAway: "km entfernt",
+                eggs: "Eier", milk: "Milch", rice: "Reis", pasta: "Nudeln",
+                bread: "Brot", chicken: "Hähnchen", onions: "Zwiebeln",
+                bananas: "Bananen", yogurt: "Joghurt", potatoes: "Kartoffeln"
+            },
+            fr: {
+                tagline: "Trouvez moins cher. Trouvez près.",
+                searchBtn: "Chercher",
+                placeholder: "ex. œufs, lait, riz...",
+                popular: "Recherches populaires",
+                loading: "📍 Recherche des meilleurs prix...",
+                noResults: "Aucun résultat pour",
+                noResultsSub: "Essayez œufs, lait, riz ou pâtes",
+                storesFound: "magasins trouvés",
+                showingResults: "Résultats pour",
+                bestPrice: "🏆 Meilleur Prix",
+                kmAway: "km",
+                eggs: "Œufs", milk: "Lait", rice: "Riz", pasta: "Pâtes",
+                bread: "Pain", chicken: "Poulet", onions: "Oignons",
+                bananas: "Bananes", yogurt: "Yaourt", potatoes: "Pommes de terre"
+            },
+            es: {
+                tagline: "Encuéntralo barato. Encuéntralo cerca.",
+                searchBtn: "Buscar",
+                placeholder: "ej. huevos, leche, arroz...",
+                popular: "Búsquedas populares",
+                loading: "📍 Buscando mejores precios...",
+                noResults: "Sin resultados para",
+                noResultsSub: "Prueba huevos, leche, arroz o pasta",
+                storesFound: "tiendas encontradas",
+                showingResults: "Resultados para",
+                bestPrice: "🏆 Mejor Precio",
+                kmAway: "km",
+                eggs: "Huevos", milk: "Leche", rice: "Arroz", pasta: "Pasta",
+                bread: "Pan", chicken: "Pollo", onions: "Cebollas",
+                bananas: "Plátanos", yogurt: "Yogur", potatoes: "Patatas"
+            },
+            it: {
+                tagline: "Trovalo economico. Trovalo vicino.",
+                searchBtn: "Cerca",
+                placeholder: "es. uova, latte, riso...",
+                popular: "Ricerche popolari",
+                loading: "📍 Ricerca prezzi migliori...",
+                noResults: "Nessun risultato per",
+                noResultsSub: "Prova uova, latte, riso o pasta",
+                storesFound: "negozi trovati",
+                showingResults: "Risultati per",
+                bestPrice: "🏆 Miglior Prezzo",
+                kmAway: "km",
+                eggs: "Uova", milk: "Latte", rice: "Riso", pasta: "Pasta",
+                bread: "Pane", chicken: "Pollo", onions: "Cipolle",
+                bananas: "Banane", yogurt: "Yogurt", potatoes: "Patate"
+            },
+            pt: {
+                tagline: "Encontre barato. Encontre perto.",
+                searchBtn: "Pesquisar",
+                placeholder: "ex. ovos, leite, arroz...",
+                popular: "Pesquisas populares",
+                loading: "📍 A encontrar melhores preços...",
+                noResults: "Sem resultados para",
+                noResultsSub: "Tente ovos, leite, arroz ou massa",
+                storesFound: "lojas encontradas",
+                showingResults: "Resultados para",
+                bestPrice: "🏆 Melhor Preço",
+                kmAway: "km",
+                eggs: "Ovos", milk: "Leite", rice: "Arroz", pasta: "Massa",
+                bread: "Pão", chicken: "Frango", onions: "Cebolas",
+                bananas: "Bananas", yogurt: "Iogurte", potatoes: "Batatas"
+            },
+            pl: {
+                tagline: "Znajdź tanio. Znajdź blisko.",
+                searchBtn: "Szukaj",
+                placeholder: "np. jajka, mleko, ryż...",
+                popular: "Popularne wyszukiwania",
+                loading: "📍 Szukam najlepszych cen...",
+                noResults: "Brak wyników dla",
+                noResultsSub: "Spróbuj jajka, mleko, ryż lub makaron",
+                storesFound: "sklepów znaleziono",
+                showingResults: "Wyniki dla",
+                bestPrice: "🏆 Najlepsza Cena",
+                kmAway: "km",
+                eggs: "Jajka", milk: "Mleko", rice: "Ryż", pasta: "Makaron",
+                bread: "Chleb", chicken: "Kurczak", onions: "Cebula",
+                bananas: "Banany", yogurt: "Jogurt", potatoes: "Ziemniaki"
+            },
+            tr: {
+                tagline: "Ucuz bul. Yakın bul.",
+                searchBtn: "Ara",
+                placeholder: "örn. yumurta, süt, pirinç...",
+                popular: "Popüler aramalar",
+                loading: "📍 En iyi fiyatlar aranıyor...",
+                noResults: "Sonuç bulunamadı",
+                noResultsSub: "Yumurta, süt, pirinç veya makarna deneyin",
+                storesFound: "mağaza bulundu",
+                showingResults: "Sonuçlar",
+                bestPrice: "🏆 En İyi Fiyat",
+                kmAway: "km uzakta",
+                eggs: "Yumurta", milk: "Süt", rice: "Pirinç", pasta: "Makarna",
+                bread: "Ekmek", chicken: "Tavuk", onions: "Soğan",
+                bananas: "Muz", yogurt: "Yoğurt", potatoes: "Patates"
+            },
+            ar: {
+                tagline: "ابحث عن الأرخص. ابحث عن الأقرب.",
+                searchBtn: "بحث",
+                placeholder: "مثل: بيض، حليب، أرز...",
+                popular: "عمليات البحث الشائعة",
+                loading: "📍 جارٍ البحث عن أفضل الأسعار...",
+                noResults: "لا توجد نتائج لـ",
+                noResultsSub: "جرب بيض، حليب، أرز أو معكرونة",
+                storesFound: "متاجر وجدت",
+                showingResults: "نتائج لـ",
+                bestPrice: "🏆 أفضل سعر",
+                kmAway: "كم",
+                eggs: "بيض", milk: "حليب", rice: "أرز", pasta: "معكرونة",
+                bread: "خبز", chicken: "دجاج", onions: "بصل",
+                bananas: "موز", yogurt: "زبادي", potatoes: "بطاطس"
+            },
+            hi: {
+                tagline: "सस्ता खोजें। पास खोजें।",
+                searchBtn: "खोजें",
+                placeholder: "जैसे अंडे, दूध, चावल...",
+                popular: "लोकप्रिय खोजें",
+                loading: "📍 सबसे सस्ते दाम खोजे जा रहे हैं...",
+                noResults: "कोई परिणाम नहीं मिला",
+                noResultsSub: "अंडे, दूध, चावल या पास्ता खोजें",
+                storesFound: "स्टोर मिले",
+                showingResults: "परिणाम",
+                bestPrice: "🏆 सबसे सस्ता",
+                kmAway: "किमी दूर",
+                eggs: "अंडे", milk: "दूध", rice: "चावल", pasta: "पास्ता",
+                bread: "रोटी", chicken: "चिकन", onions: "प्याज़",
+                bananas: "केले", yogurt: "दही", potatoes: "आलू"
+            }
+        };
+
+        function detectLanguage() {
+            const browserLang = navigator.language.slice(0, 2);
+            if (translations[browserLang]) currentLang = browserLang;
+            document.getElementById('langSelect').value = currentLang;
+            applyLanguage(currentLang);
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            applyLanguage(lang);
+            document.body.classList.toggle('rtl', lang === 'ar');
+            trackEvent("language_changed", { language: lang });
+        }
+
+        function applyLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('tagline').textContent = t.tagline;
+            document.getElementById('searchBtn').textContent = t.searchBtn;
+            document.getElementById('searchInput').placeholder = t.placeholder;
+            document.getElementById('popularLabel').textContent = t.popular;
+            document.querySelector('.t-eggs').textContent = t.eggs;
+            document.querySelector('.t-milk').textContent = t.milk;
+            document.querySelector('.t-rice').textContent = t.rice;
+            document.querySelector('.t-pasta').textContent = t.pasta;
+            document.querySelector('.t-bread').textContent = t.bread;
+            document.querySelector('.t-chicken').textContent = t.chicken;
+            document.querySelector('.t-onions').textContent = t.onions;
+            document.querySelector('.t-bananas').textContent = t.bananas;
+            document.querySelector('.t-yogurt').textContent = t.yogurt;
+            document.querySelector('.t-potatoes').textContent = t.potatoes;
+        }
+
+        // ─── NAVIGATION ───────────────────────────────────────
+        function goHome() {
+            document.getElementById('app').classList.remove('searched');
+            document.getElementById('searchInput').value = '';
+            document.getElementById('results').innerHTML = '';
+            trackEvent("home_clicked", {});
+        }
+
+        // ─── SEARCH ───────────────────────────────────────────
+        function quickSearch(item) {
+            document.getElementById('searchInput').value = item;
+            trackEvent("quick_tag_clicked", { tag: item });
+            search();
+        }
+
+        function search() {
+            const item = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!item) return;
+            const t = translations[currentLang];
+
+            trackEvent("search", {
+                query: item,
+                language: currentLang,
+                user_lat: userLat,
+                user_lng: userLng
+            });
+
+            document.getElementById('app').classList.add('searched');
+            document.getElementById('results').innerHTML = `<div class="loading">${t.loading}</div>`;
+
+            fetchAndDisplay(item, userLat, userLng);
+        }
+
+        // ─── DISTANCE ─────────────────────────────────────────
+        function getDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+        }
+
+        // ─── FETCH & DISPLAY ──────────────────────────────────
+        function fetchAndDisplay(item, userLat, userLng) {
+            const t = translations[currentLang];
+
+            fetch(SHEET_URL)
+                .then(response => response.text())
+                .then(data => {
+                    const json = JSON.parse(data.substring(47).slice(0, -2));
+                    const rows = json.table.rows;
+
+                    const matches = rows.filter(row =>
+                        row.c[0] && row.c[0].v.toLowerCase() === item
+                    ).map(row => ({
+                        store: row.c[1].v,
+                        price: row.c[2].v,
+                        address: row.c[3].v,
+                        distance: getDistance(userLat, userLng, row.c[5].v, row.c[6].v)
+                    }));
+
+                    if (matches.length === 0) {
+                        document.getElementById('results').innerHTML = `
+                            <div class="no-results">
+                                <p>😕 ${t.noResults} "<strong>${item}</strong>"</p>
+                                <p style="margin-top:8px; font-size:0.85rem;">${t.noResultsSub}</p>
+                            </div>`;
+                        trackEvent("no_results", { query: item });
+                        return;
+                    }
+
+                    matches.sort((a, b) => a.price - b.price);
+
+                    trackEvent("results_viewed", {
+                        query: item,
+                        results_count: matches.length,
+                        cheapest_store: matches[0].store,
+                        cheapest_price: matches[0].price
+                    });
+
+                    let html = `<div class="results-header">${t.showingResults} <span>"${item}"</span> — ${matches.length} ${t.storesFound}</div>`;
+                    html += '<div class="cards-grid">';
+
+                    matches.forEach((store, index) => {
+                        const isBest = index === 0;
+                        html += `
+                            <div class="store-card ${isBest ? 'best' : ''}">
+                                ${isBest ? `<div class="best-badge">${t.bestPrice}</div>` : ''}
+                                <div class="card-store-name">${store.store}</div>
+                                <div class="card-address">📍 ${store.address}</div>
+                                <div class="card-bottom">
+                                    <div class="card-price">€${store.price.toFixed(2)}</div>
+                                    <div class="card-distance">${store.distance} ${t.kmAway}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                    document.getElementById('results').innerHTML = html;
+                })
+                .catch(() => {
+                    document.getElementById('results').innerHTML = `<div class="no-results">Error loading data. Please try again.</div>`;
+                });
+        }
+
+// ─── INIT ─────────────────────────────────────────────
+        detectLanguage();
+
+        // Only show location modal once per session
+        if (!sessionStorage.getItem('locationAsked')) {
+            sessionStorage.setItem('locationAsked', 'true');
+        } else {
+            document.getElementById('locationModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
