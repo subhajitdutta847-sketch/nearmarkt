@@ -463,6 +463,18 @@
             const seconds = Math.round((Date.now() - startTime) / 1000);
             trackEvent("session_end", { duration_seconds: seconds });
         });
+        // Log search to Flask backend
+        function logSearch(product, lat, lng) {
+            const location = `${lat},${lng}`;
+            fetch('https://nearmarkt.onrender.com/log-search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product: product,
+                    location: location
+                })
+            }).catch(err => console.log('Log error:', err));
+        }
 
         // ─── LOCATION ─────────────────────────────────────────
         function enableLocation() {
@@ -712,6 +724,7 @@
             document.getElementById('results').innerHTML = `<div class="loading">${t.loading}</div>`;
 
             fetchAndDisplay(item, userLat, userLng);
+            logSearch(item, userLat, userLng);
         }
 
         // ─── DISTANCE ─────────────────────────────────────────
