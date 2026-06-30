@@ -24,7 +24,7 @@ else:
     creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 
 client = gspread.authorize(creds)
-sheet = client.open("NearMarkt Search Logs").sheet1
+sheet = client.open("NearMarkt_Search_Logs").sheet1
 
 @app.route('/log-search', methods=['POST'])
 def log_search():
