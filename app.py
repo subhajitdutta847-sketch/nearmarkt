@@ -5,6 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import json
 import os
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -24,6 +25,18 @@ else:
     creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 
 client = gspread.authorize(creds)
+def get_place_name(lat, lng):
+    try:
+        url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=json"
+        headers = {'User-Agent': 'NearMarkt/1.0'}
+        response = requests.get(url, headers=headers, timeout=5)
+        data = response.json()
+        address = data.get('address', {})
+        city = address.get('city') or address.get('town') or address.get('village') or 'Unknown'
+        country = address.get('country', '')
+        return f"{city}, {country}"
+    except:
+        return f"{lat}, {lng}"
 sheet = client.open("NearMarkt_Search_Logs").sheet1
 
 @app.route('/log-search', methods=['POST'])
@@ -62,8 +75,21 @@ def beta_signup():
     
     name = data.get('name', 'Unknown')
     email = data.get('email', 'Unknown')
-    country = data.get('country', 'Unknown')
-    city = data.get('city', 'Unknown')
+    location_raw = data.get('location', 'Unknown')
+    if ',' in str(location_raw):
+        parts = location_raw.split(',')
+        try:
+            lat = float(parts[0])
+            lng = float(parts[1])
+            place = get_place_name(lat, lng)
+            city = place.split(',')[0].strip()
+            country = place.split(',')[1].strip() if ',' in place else 'Unknown'
+        except:
+            city = 'Unknown'
+            country = 'Unknown'
+    else:
+        city = 'Unknown'
+        country = 'Unknown'
     device = data.get('device', 'Unknown')
     browser = data.get('browser', 'Unknown')
     language = data.get('language', 'Unknown')

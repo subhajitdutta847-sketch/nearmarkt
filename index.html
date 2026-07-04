@@ -603,6 +603,17 @@
                            navigator.userAgent.includes('Firefox') ? 'Firefox' :
                            navigator.userAgent.includes('Safari') ? 'Safari' : 'Other';
 
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    sendSignup(name, email, device, browser, `${position.coords.latitude},${position.coords.longitude}`);
+                },
+                () => {
+                    sendSignup(name, email, device, browser, 'Unknown');
+                }
+            );
+        }
+
+        function sendSignup(name, email, device, browser, location) {
             fetch('https://nearmarkt.onrender.com/beta-signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -612,8 +623,7 @@
                     device: device,
                     browser: browser,
                     language: navigator.language,
-                    country: 'Unknown',
-                    city: 'Unknown'
+                    location: location
                 })
             })
             .then(response => response.json())
