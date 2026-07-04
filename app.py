@@ -69,7 +69,7 @@ def beta_signup():
     language = data.get('language', 'Unknown')
     
     # Open Beta Users sheet
-    beta_sheet = client.open("NearMarkt Search Logs").worksheet("Beta Users")
+    beta_sheet = client.open("NearMarkt_Search_Logs").worksheet("Beta Users")
     beta_sheet.append_row([
         timestamp,
         name,
