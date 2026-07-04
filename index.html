@@ -366,7 +366,7 @@
     </style>
 </head>
 <body>
-    <!-- Password Gate -->
+<!-- Password Gate -->
     <div id="passwordGate" style="
         position: fixed; top: 0; left: 0;
         width: 100%; height: 100%;
@@ -490,6 +490,35 @@
     </div>
 
     <script>
+        // Secure password check via Flask backend
+        function checkPassword() {
+            const entered = document.getElementById('gatePassword').value;
+            if (!entered) return;
+
+            fetch('https://nearmarkt.onrender.com/check-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: entered })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    sessionStorage.setItem('nearmarkt_auth', data.token);
+                    document.getElementById('passwordGate').style.display = 'none';
+                } else {
+                    document.getElementById('gateError').style.display = 'block';
+                }
+            })
+            .catch(() => {
+                document.getElementById('gateError').textContent = 'Connection error. Try again.';
+                document.getElementById('gateError').style.display = 'block';
+            });
+        }
+
+        // Check if already authenticated this session
+        if (sessionStorage.getItem('nearmarkt_auth') === 'nm_beta_access_granted') {
+            document.getElementById('passwordGate').style.display = 'none';
+        }
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/1RmtEaNfQO6PZA4skJvdgnTjdd6JMszMdR4QGsCCvGiQ/gviz/tq?tqx=out:json&sheet=NearMarkt%20Prices";
 
         // Default location — SRH Hamburg
