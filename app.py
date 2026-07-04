@@ -53,5 +53,35 @@ def check_password():
     else:
         return jsonify({"status": "error", "message": "Wrong password"}), 401
 
+@app.route('/beta-signup', methods=['POST'])
+def beta_signup():
+    data = request.json
+    
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    
+    name = data.get('name', 'Unknown')
+    email = data.get('email', 'Unknown')
+    country = data.get('country', 'Unknown')
+    city = data.get('city', 'Unknown')
+    device = data.get('device', 'Unknown')
+    browser = data.get('browser', 'Unknown')
+    language = data.get('language', 'Unknown')
+    
+    # Open Beta Users sheet
+    beta_sheet = client.open("NearMarkt Search Logs").worksheet("Beta Users")
+    beta_sheet.append_row([
+        timestamp,
+        name,
+        email,
+        country,
+        city,
+        device,
+        browser,
+        language,
+        "Pending"
+    ])
+    
+    return jsonify({"status": "success"})
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
