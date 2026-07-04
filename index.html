@@ -363,6 +363,40 @@
             direction: rtl;
             text-align: right;
         }
+        /* MOBILE LAYOUT */
+        @media (max-width: 768px) {
+            .app.searched {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .app.searched .search-panel {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-radius: 0;
+                padding: 16px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+
+            .app.searched .search-panel .quick-searches {
+                display: none;
+            }
+
+            .app.searched .results-panel {
+                padding: 16px;
+                min-height: 100vh;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .language-bar {
+                top: 8px;
+                right: 8px;
+            }
+        }
     </style>
 </head>
 <body>
