@@ -42,5 +42,16 @@ def log_search():
 def home():
     return "NearMarkt Backend Running"
 
+@app.route('/check-password', methods=['POST'])
+def check_password():
+    data = request.json
+    entered = data.get('password', '')
+    correct = os.environ.get('BETA_PASSWORD', 'nearmarkt2024')
+    
+    if entered == correct:
+        return jsonify({"status": "success", "token": "nm_beta_access_granted"})
+    else:
+        return jsonify({"status": "error", "message": "Wrong password"}), 401
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

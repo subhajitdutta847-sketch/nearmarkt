@@ -490,22 +490,6 @@
     </div>
 
     <script>
-        // Password gate
-        const BETA_PASSWORD = "nearmarkt2024";
-
-        function checkPassword() {
-            const entered = document.getElementById('gatePassword').value;
-            if (entered === BETA_PASSWORD) {
-                document.getElementById('passwordGate').style.display = 'none';
-                sessionStorage.setItem('nearmarkt_auth', 'true');
-            } else {
-                document.getElementById('gateError').style.display = 'block';
-            }
-        }
-
-        if (sessionStorage.getItem('nearmarkt_auth') === 'true') {
-            document.getElementById('passwordGate').style.display = 'none';
-        }
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/1RmtEaNfQO6PZA4skJvdgnTjdd6JMszMdR4QGsCCvGiQ/gviz/tq?tqx=out:json&sheet=NearMarkt%20Prices";
 
         // Default location — SRH Hamburg
