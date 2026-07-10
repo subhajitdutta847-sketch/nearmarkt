@@ -3,6 +3,7 @@ from flask_cors import CORS
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import json
 import os
 import requests
@@ -25,6 +26,11 @@ else:
     creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 
 client = gspread.authorize(creds)
+
+def get_local_timestamp():
+    """Returns current time in Hamburg (Europe/Berlin), auto-adjusts for CET/CEST."""
+    return datetime.now(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M:%S")
+
 def get_place_name(lat, lng):
     try:
         url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=json"
@@ -43,7 +49,7 @@ sheet = client.open("NearMarkt_Search_Logs").sheet1
 def log_search():
     data = request.json
 
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = get_local_timestamp()
     location = data.get('location', 'Unknown')
     product = data.get('product', 'Unknown')
 
@@ -70,8 +76,7 @@ def check_password():
 def beta_signup():
     data = request.json
     
-    now = datetime.now()
-    timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = get_local_timestamp()
     
     name = data.get('name', 'Unknown')
     email = data.get('email', 'Unknown')
