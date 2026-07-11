@@ -353,6 +353,25 @@
             font-size: 1rem;
         }
 
+        .not-covered {
+            text-align: center;
+            color: #666;
+            margin-top: 60px;
+            font-size: 1rem;
+            padding: 0 20px;
+        }
+
+        .not-covered .icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .not-covered .sub {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
         .loading {
             text-align: center;
             color: #999;
@@ -698,6 +717,10 @@
         }
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/1RmtEaNfQO6PZA4skJvdgnTjdd6JMszMdR4QGsCCvGiQ/gviz/tq?tqx=out:json&sheet=NearMarkt%20Prices";
 
+        // Coverage radius — beyond this distance from the nearest tracked store,
+        // we tell the user honestly rather than showing misleading far-away prices.
+        const COVERAGE_RADIUS_KM = 3;
+
         // Default location — SRH Hamburg
         let userLat = 53.5507;
         let userLng = 10.0007;
@@ -773,6 +796,8 @@
                 showingResults: "Showing results for",
                 bestPrice: "🏆 Best Price",
                 kmAway: "km away",
+                notCovered: "We don't have price data for your area yet",
+                notCoveredSub: "We're currently tracking stores near SRH Hamburg (Domstrasse). Your search has been logged and helps us decide where to expand next!",
                 eggs: "Eggs", milk: "Milk", rice: "Rice", pasta: "Pasta",
                 bread: "Bread", chicken: "Chicken", onions: "Onions",
                 bananas: "Bananas", yogurt: "Yogurt", potatoes: "Potatoes"
@@ -789,6 +814,8 @@
                 showingResults: "Ergebnisse für",
                 bestPrice: "🏆 Bester Preis",
                 kmAway: "km entfernt",
+                notCovered: "Für deine Gegend haben wir noch keine Preisdaten",
+                notCoveredSub: "Wir erfassen derzeit Geschäfte in der Nähe der SRH Hamburg (Domstraße). Deine Suche wurde gespeichert und hilft uns zu entscheiden, wohin wir als Nächstes expandieren!",
                 eggs: "Eier", milk: "Milch", rice: "Reis", pasta: "Nudeln",
                 bread: "Brot", chicken: "Hähnchen", onions: "Zwiebeln",
                 bananas: "Bananen", yogurt: "Joghurt", potatoes: "Kartoffeln"
@@ -805,6 +832,8 @@
                 showingResults: "Résultats pour",
                 bestPrice: "🏆 Meilleur Prix",
                 kmAway: "km",
+                notCovered: "Nous n'avons pas encore de données de prix pour votre zone",
+                notCoveredSub: "Nous suivons actuellement les magasins près de SRH Hamburg (Domstrasse). Votre recherche a été enregistrée et nous aide à choisir où nous développer ensuite !",
                 eggs: "Œufs", milk: "Lait", rice: "Riz", pasta: "Pâtes",
                 bread: "Pain", chicken: "Poulet", onions: "Oignons",
                 bananas: "Bananes", yogurt: "Yaourt", potatoes: "Pommes de terre"
@@ -821,6 +850,8 @@
                 showingResults: "Resultados para",
                 bestPrice: "🏆 Mejor Precio",
                 kmAway: "km",
+                notCovered: "Todavía no tenemos datos de precios para tu zona",
+                notCoveredSub: "Actualmente seguimos tiendas cerca de SRH Hamburg (Domstrasse). Tu búsqueda ha sido registrada y nos ayuda a decidir dónde expandirnos después.",
                 eggs: "Huevos", milk: "Leche", rice: "Arroz", pasta: "Pasta",
                 bread: "Pan", chicken: "Pollo", onions: "Cebollas",
                 bananas: "Plátanos", yogurt: "Yogur", potatoes: "Patatas"
@@ -837,6 +868,8 @@
                 showingResults: "Risultati per",
                 bestPrice: "🏆 Miglior Prezzo",
                 kmAway: "km",
+                notCovered: "Non abbiamo ancora dati sui prezzi per la tua zona",
+                notCoveredSub: "Al momento monitoriamo i negozi vicino a SRH Hamburg (Domstrasse). La tua ricerca è stata registrata e ci aiuta a decidere dove espanderci dopo!",
                 eggs: "Uova", milk: "Latte", rice: "Riso", pasta: "Pasta",
                 bread: "Pane", chicken: "Pollo", onions: "Cipolle",
                 bananas: "Banane", yogurt: "Yogurt", potatoes: "Patate"
@@ -853,6 +886,8 @@
                 showingResults: "Resultados para",
                 bestPrice: "🏆 Melhor Preço",
                 kmAway: "km",
+                notCovered: "Ainda não temos dados de preços para a sua área",
+                notCoveredSub: "Atualmente monitorizamos lojas perto da SRH Hamburg (Domstrasse). A sua pesquisa foi registada e ajuda-nos a decidir para onde expandir a seguir!",
                 eggs: "Ovos", milk: "Leite", rice: "Arroz", pasta: "Massa",
                 bread: "Pão", chicken: "Frango", onions: "Cebolas",
                 bananas: "Bananas", yogurt: "Iogurte", potatoes: "Batatas"
@@ -869,6 +904,8 @@
                 showingResults: "Wyniki dla",
                 bestPrice: "🏆 Najlepsza Cena",
                 kmAway: "km",
+                notCovered: "Nie mamy jeszcze danych cenowych dla Twojej okolicy",
+                notCoveredSub: "Obecnie śledzimy sklepy w pobliżu SRH Hamburg (Domstrasse). Twoje wyszukiwanie zostało zapisane i pomaga nam zdecydować, gdzie rozwijać się dalej!",
                 eggs: "Jajka", milk: "Mleko", rice: "Ryż", pasta: "Makaron",
                 bread: "Chleb", chicken: "Kurczak", onions: "Cebula",
                 bananas: "Banany", yogurt: "Jogurt", potatoes: "Ziemniaki"
@@ -885,6 +922,8 @@
                 showingResults: "Sonuçlar",
                 bestPrice: "🏆 En İyi Fiyat",
                 kmAway: "km uzakta",
+                notCovered: "Bölgeniz için henüz fiyat verimiz yok",
+                notCoveredSub: "Şu anda SRH Hamburg (Domstrasse) yakınındaki mağazaları takip ediyoruz. Aramanız kaydedildi ve bir sonraki genişleme yerimize karar vermemize yardımcı oluyor!",
                 eggs: "Yumurta", milk: "Süt", rice: "Pirinç", pasta: "Makarna",
                 bread: "Ekmek", chicken: "Tavuk", onions: "Soğan",
                 bananas: "Muz", yogurt: "Yoğurt", potatoes: "Patates"
@@ -901,6 +940,8 @@
                 showingResults: "نتائج لـ",
                 bestPrice: "🏆 أفضل سعر",
                 kmAway: "كم",
+                notCovered: "لا تتوفر لدينا بيانات أسعار لمنطقتك بعد",
+                notCoveredSub: "نتابع حاليًا المتاجر القريبة من SRH Hamburg (Domstrasse). تم تسجيل بحثك ويساعدنا في تحديد أين نتوسع بعد ذلك!",
                 eggs: "بيض", milk: "حليب", rice: "أرز", pasta: "معكرونة",
                 bread: "خبز", chicken: "دجاج", onions: "بصل",
                 bananas: "موز", yogurt: "زبادي", potatoes: "بطاطس"
@@ -917,6 +958,8 @@
                 showingResults: "परिणाम",
                 bestPrice: "🏆 सबसे सस्ता",
                 kmAway: "किमी दूर",
+                notCovered: "आपके क्षेत्र के लिए अभी हमारे पास मूल्य डेटा नहीं है",
+                notCoveredSub: "हम फिलहाल SRH Hamburg (Domstrasse) के पास के स्टोर ट्रैक कर रहे हैं। आपकी खोज सेव कर ली गई है और यह तय करने में मदद करती है कि आगे कहां विस्तार करें!",
                 eggs: "अंडे", milk: "दूध", rice: "चावल", pasta: "पास्ता",
                 bread: "रोटी", chicken: "चिकन", onions: "प्याज़",
                 bananas: "केले", yogurt: "दही", potatoes: "आलू"
@@ -1029,6 +1072,25 @@
                         return;
                     }
 
+                    // Check coverage: is the nearest matching store within our tracked radius?
+                    const nearestDistance = Math.min(...matches.map(m => parseFloat(m.distance)));
+
+                    if (nearestDistance > COVERAGE_RADIUS_KM) {
+                        document.getElementById('results').innerHTML = `
+                            <div class="not-covered">
+                                <div class="icon">🗺️</div>
+                                <p><strong>${t.notCovered}</strong></p>
+                                <p class="sub">${t.notCoveredSub}</p>
+                            </div>`;
+                        trackEvent("out_of_coverage", {
+                            query: item,
+                            nearest_km: nearestDistance,
+                            user_lat: userLat,
+                            user_lng: userLng
+                        });
+                        return;
+                    }
+
                     matches.sort((a, b) => a.price - b.price);
 
                     trackEvent("results_viewed", {
@@ -1075,4 +1137,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
