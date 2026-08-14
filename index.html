@@ -511,13 +511,27 @@
 
             <!-- Password Form -->
             <div id="passwordForm" style="display: none;">
-                <div style="font-size: 2rem; margin-bottom: 8px;">🛒 NearMarkt</div>
-                <p style="color: #666; margin-bottom: 24px; font-size: 0.9rem;">
-                    Enter your access password
-                </p>
-                <input
-                    type="password"
-                    id="gatePassword"
+    <div style="font-size: 2rem; margin-bottom: 8px;">🛒 NearMarkt</div>
+    <p style="color: #666; margin-bottom: 24px; font-size: 0.9rem;">
+        Enter your access password
+    </p>
+    <input
+        type="email"
+        id="gateEmail"
+        placeholder="Your email address"
+        style="
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 10px;
+            box-sizing: border-box;"
+    />
+    <input
+        type="password"
+        id="gatePassword"
                     placeholder="Enter password"
                     onkeydown="if(event.key==='Enter') checkPassword()"
                     style="
@@ -694,28 +708,30 @@
         }
 
         function checkPassword() {
-            const entered = document.getElementById('gatePassword').value;
-            if (!entered) return;
+    const entered = document.getElementById('gatePassword').value;
+    const email = document.getElementById('gateEmail').value.trim();
+    if (!entered) return;
 
-            fetch('https://nearmarkt.onrender.com/check-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: entered })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    sessionStorage.setItem('nearmarkt_auth', data.token);
-                    document.getElementById('passwordGate').style.display = 'none';
-                } else {
-                    document.getElementById('gateError').style.display = 'block';
-                }
-            })
-            .catch(() => {
-                document.getElementById('gateError').textContent = 'Connection error. Try again.';
-                document.getElementById('gateError').style.display = 'block';
-            });
+    fetch('https://nearmarkt.onrender.com/check-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: entered })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            sessionStorage.setItem('nearmarkt_auth', data.token);
+            if (email) localStorage.setItem('nearmarkt_email', email);
+            document.getElementById('passwordGate').style.display = 'none';
+        } else {
+            document.getElementById('gateError').style.display = 'block';
         }
+    })
+    .catch(() => {
+        document.getElementById('gateError').textContent = 'Connection error. Try again.';
+        document.getElementById('gateError').style.display = 'block';
+    });
+}
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/1RmtEaNfQO6PZA4skJvdgnTjdd6JMszMdR4QGsCCvGiQ/gviz/tq?tqx=out:json&sheet=NearMarkt%20Prices";
 
         // Coverage radius — beyond this distance from the nearest tracked store,
