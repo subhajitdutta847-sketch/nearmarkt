@@ -759,7 +759,7 @@
                 body: JSON.stringify({
                     product: product,
                     location: location,
-                    email: email
+                    email: localStorage.getItem('nearmarkt_email') || 'Unknown'
                 })
             }).catch(err => console.log('Log error:', err));
         }
