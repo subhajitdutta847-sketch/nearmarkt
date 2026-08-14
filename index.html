@@ -684,6 +684,7 @@
             })
             .then(response => response.json())
             .then(data => {
+                localStorage.setItem('nearmarkt_email', email);
                 document.getElementById('signupForm').style.display = 'none';
                 document.getElementById('signupSuccess').style.display = 'block';
             })
@@ -757,7 +758,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     product: product,
-                    location: location
+                    location: location,
+                    email: email
                 })
             }).catch(err => console.log('Log error:', err));
         }

@@ -53,8 +53,9 @@ def log_search():
     timestamp = get_local_timestamp()
     location = data.get('location', 'Unknown')
     product = data.get('product', 'Unknown')
+    email = data.get('email', 'Unknown')
 
-    sheet.append_row([timestamp, location, product])
+    sheet.append_row([timestamp, location, product, email])
 
     return jsonify({"status": "success"})
 
