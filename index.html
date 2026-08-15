@@ -418,6 +418,114 @@
                 right: 8px;
             }
         }
+            .feedback-button {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 5000;
+                background: #2d7a3a;
+                color: white;
+                border: none;
+                border-radius: 24px;
+                padding: 11px 18px;
+                font-size: 0.9rem;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            }
+
+            .feedback-button:hover {
+                background: #235e2d;
+                transform: translateY(-2px);
+            }
+
+            .feedback-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 9998;
+                display: none;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .feedback-box {
+                background: white;
+                width: 90%;
+                max-width: 420px;
+                border-radius: 16px;
+                padding: 28px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            }
+
+            .feedback-box h2 {
+                color: #2d7a3a;
+                margin-bottom: 8px;
+            }
+
+            .feedback-box p {
+                color: #666;
+                font-size: 0.9rem;
+                margin-bottom: 18px;
+            }
+
+            .feedback-type {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 14px;
+            }
+
+            .feedback-type button {
+                flex: 1;
+                background: #f0f4f0;
+                color: #444;
+                border: 1px solid #ddd;
+                padding: 9px;
+                font-size: 0.85rem;
+            }
+
+            .feedback-type button.active {
+                background: #2d7a3a;
+                color: white;
+                border-color: #2d7a3a;
+            }
+
+            #feedbackMessage {
+                width: 100%;
+                min-height: 120px;
+                padding: 12px;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                resize: vertical;
+                font-family: Arial, sans-serif;
+                font-size: 0.95rem;
+                outline: none;
+                margin-bottom: 12px;
+            }
+
+            .feedback-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .feedback-actions button {
+                flex: 1;
+            }
+
+            .feedback-cancel {
+                background: #f5f5f5;
+                color: #555;
+            }
+
+            .feedback-success {
+                text-align: center;
+                display: none;
+            }
+
+            .feedback-success .icon {
+                font-size: 3rem;
+                margin-bottom: 12px;
+            }
     </style>
 </head>
 <body>
@@ -733,6 +841,7 @@
     });
 }
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/1RmtEaNfQO6PZA4skJvdgnTjdd6JMszMdR4QGsCCvGiQ/gviz/tq?tqx=out:json&sheet=NearMarkt%20Prices";
+        const FEEDBACK_URL = "https://script.google.com/macros/s/AKfycbznmF-R2DGLMAVVsGq5sppr3aPBGvY-6vYiQeBGk-VxDrcVjf-X7xyRxGE_RiGeMyQw/exec";
 
         // Coverage radius — beyond this distance from the nearest tracked store,
         // we tell the user honestly rather than showing misleading far-away prices.
@@ -1153,6 +1262,165 @@
         } else {
             document.getElementById('locationModal').style.display = 'none';
         }
+        let feedbackType = "general";
+
+        function openFeedback() {
+            document.getElementById("feedbackOverlay").style.display = "flex";
+
+            trackEvent("feedback_opened", {});
+        }
+
+        function closeFeedback() {
+            document.getElementById("feedbackOverlay").style.display = "none";
+
+            document.getElementById("feedbackForm").style.display = "block";
+            document.getElementById("feedbackSuccess").style.display = "none";
+
+            document.getElementById("feedbackMessage").value = "";
+        }
+
+        function selectFeedbackType(type) {
+
+            feedbackType = type;
+
+            document
+                .querySelectorAll(".feedback-type button")
+                .forEach(button => button.classList.remove("active"));
+
+            if (type === "bug") {
+                document.getElementById("feedbackBug").classList.add("active");
+            }
+
+            if (type === "idea") {
+                document.getElementById("feedbackIdea").classList.add("active");
+            }
+
+            if (type === "general") {
+                document.getElementById("feedbackGeneral").classList.add("active");
+            }
+        }
+
+        function submitFeedback() {
+
+            const message = document
+                .getElementById("feedbackMessage")
+                .value
+                .trim();
+
+            if (!message) {
+                alert("Please enter your feedback.");
+                return;
+            }
+
+            // Get the email saved during beta signup/login
+            const email =
+                localStorage.getItem("nearmarkt_email") || "Unknown";
+
+            const payload = {
+                email: email,
+                type: feedbackType,
+                message: message,
+                language: currentLang,
+                device: /Mobi|Android/i.test(navigator.userAgent)
+                    ? "Mobile"
+                    : "Desktop"
+            };
+
+            fetch(FEEDBACK_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                if (data.status !== "success") {
+                    throw new Error(data.message || "Submission failed");
+                }
+
+                trackEvent("feedback_submitted", {
+                    type: feedbackType
+                });
+
+                document.getElementById("feedbackForm").style.display = "none";
+                document.getElementById("feedbackSuccess").style.display = "block";
+
+            })
+            .catch(error => {
+
+                console.error("Feedback error:", error);
+
+                alert(
+                    "Sorry, we could not send your feedback. Please try again."
+                );
+            });
+        }
     </script>
+    <button class="feedback-button" onclick="openFeedback()">
+    💬 Feedback
+    </button>
+    <div class="feedback-overlay" id="feedbackOverlay">
+    <div class="feedback-box">
+
+        <div id="feedbackForm">
+
+            <h2>💬 Give us feedback</h2>
+
+            <p>Help us improve NearMarkt. Tell us what you think.</p>
+
+            <div class="feedback-type">
+                <button id="feedbackBug" onclick="selectFeedbackType('bug')">
+                    🐛 Bug
+                </button>
+
+                <button id="feedbackIdea" onclick="selectFeedbackType('idea')">
+                    💡 Idea
+                </button>
+
+                <button id="feedbackGeneral" onclick="selectFeedbackType('general')">
+                    💬 General
+                </button>
+            </div>
+
+            <textarea
+                id="feedbackMessage"
+                placeholder="What would you like to tell us?"
+            ></textarea>
+
+            <div class="feedback-actions">
+                <button
+                    class="feedback-cancel"
+                    onclick="closeFeedback()">
+                    Cancel
+                </button>
+
+                <button onclick="submitFeedback()">
+                    Send Feedback
+                </button>
+            </div>
+
+        </div>
+
+        <div class="feedback-success" id="feedbackSuccess">
+
+            <div class="icon">✅</div>
+
+            <h2>Thank you!</h2>
+
+            <p>
+                Your feedback has been received.
+                It helps us make NearMarkt better.
+            </p>
+
+            <button onclick="closeFeedback()">
+                Close
+            </button>
+
+        </div>
+
+    </div>
+    </div>
 </body>
 </html>
