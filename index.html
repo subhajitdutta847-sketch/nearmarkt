@@ -257,6 +257,137 @@
             border-color: #2d7a3a;
         }
 
+        /* DISTANCE SLIDER */
+        .distance-slider {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .distance-slider label {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .slider-wrap {
+            position: relative;
+            height: 20px;
+        }
+
+        /* Custom track background + fill sit behind the input; the input
+           itself is painted last (see markup order) so its native thumb
+           renders on top, with its own track made transparent. */
+        .distance-track-bg {
+            position: absolute;
+            top: 7px;
+            left: 0;
+            right: 0;
+            height: 6px;
+            border-radius: 3px;
+            background: #e8ece8;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .distance-track-bg .fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: #2d7a3a;
+            border-radius: 3px;
+        }
+
+        .distance-slider input[type=range] {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
+            height: 20px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: transparent;
+            margin: 0;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+        }
+
+        .distance-slider input[type=range]:focus {
+            outline: none;
+            border: none;
+        }
+
+        .distance-slider input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: transparent;
+            border-radius: 3px;
+        }
+
+        .distance-slider input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            box-sizing: border-box;
+            border: 3px solid white;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2d7a3a;
+            cursor: pointer;
+            margin-top: -7px;
+        }
+
+        .distance-slider input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: transparent;
+            border-radius: 3px;
+        }
+
+        .distance-slider input[type=range]::-moz-range-thumb {
+            box-sizing: border-box;
+            border: 3px solid white;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2d7a3a;
+            cursor: pointer;
+        }
+
+        .distance-slider input[type=range]::-moz-focus-outer {
+            border: 0;
+        }
+
+        .distance-ticks {
+            position: relative;
+            height: 16px;
+            margin-top: 6px;
+        }
+
+        .distance-ticks .tick-label {
+            position: absolute;
+            top: 0;
+            font-size: 0.62rem;
+            color: #999;
+            white-space: nowrap;
+            transform: translateX(-50%);
+        }
+
+        .distance-ticks .tick-label[data-edge="start"] {
+            transform: translateX(0);
+        }
+
+        .distance-ticks .tick-label[data-edge="end"] {
+            transform: translateX(-100%);
+        }
+
         /* RESULTS PANEL */
         .results-panel {
             flex: 1;
@@ -742,6 +873,14 @@
                 />
                 <button onclick="search()" id="searchBtn">Search</button>
             </div>
+            <div class="distance-slider">
+                <label for="distance" id="distanceLabel">Stores in 5 km</label>
+                <div class="slider-wrap">
+                    <div class="distance-track-bg"><div class="fill" id="distanceFill"></div></div>
+                    <input type="range" id="distance" min="0" max="50" step="1" value="5" oninput="updateDistance(this.value)">
+                </div>
+                <div class="distance-ticks" id="distanceTicks"></div>
+            </div>
             <div class="quick-searches">
                 <p id="popularLabel">Popular searches</p>
                 <div class="quick-tags">
@@ -868,6 +1007,9 @@
         // Default location — SRH Hamburg
         let userLat = 53.5507;
         let userLng = 10.0007;
+
+        let maxDistanceKm = 5; // default max distance shown in results
+        let currentQueryResults = [];
         let currentLang = 'en';
         const startTime = Date.now();
 
@@ -1173,9 +1315,54 @@
             document.getElementById('app').classList.add('searched');
             document.getElementById('results').innerHTML = `<div class="loading">${t.loading}</div>`;
 
+            currentQueryResults = []; // Reset on new search
             fetchAndDisplay(item, userLat, userLng);
             logSearch(item, userLat, userLng);
         }
+
+        // ─── DISTANCE SLIDER ──────────────────────────────────
+        function updateDistance(value) {
+            maxDistanceKm = parseInt(value);
+            document.getElementById('distanceLabel').textContent = `Stores in ${maxDistanceKm} km`;
+            updateDistanceFill();
+
+            // Only re-render if we are already showing results
+            if (document.getElementById('app').classList.contains('searched')) {
+                renderFilteredResults();
+                trackEvent("distance_slider_changed", { distance_km: maxDistanceKm });
+            }
+        }
+
+        // Thumb
+        function distanceTickLeft(value) {
+            const input = document.getElementById('distance');
+            const min = parseFloat(input.min);
+            const max = parseFloat(input.max);
+            const thumb = 20; 
+            const fraction = (value - min) / (max - min);
+            return `calc(${thumb / 2}px + (100% - ${thumb}px) * ${fraction})`;
+        }
+
+        // Fills the track up to the current value, like a progress bar.
+        function updateDistanceFill() {
+            const input = document.getElementById('distance');
+            document.getElementById('distanceFill').style.width =
+                distanceTickLeft(parseFloat(input.value));
+        }
+
+        // Draws the tick-mark number labels beneath the track, aligned to
+        // the same thumb-compensated positions as the fill bar.
+        function renderDistanceTicks() {
+            const labels = document.getElementById('distanceTicks');
+            const values = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+
+            labels.innerHTML = values.map((v, i) => {
+                const edge = i === 0 ? ' data-edge="start"' : i === values.length - 1 ? ' data-edge="end"' : '';
+                return `<div class="tick-label" style="left:${distanceTickLeft(v)}"${edge}>${v}</div>`;
+            }).join('');
+        }
+        renderDistanceTicks();
+        updateDistanceFill();
 
         // ─── DISTANCE ─────────────────────────────────────────
         function getDistance(lat1, lng1, lat2, lng2) {
@@ -1198,7 +1385,7 @@
                     const json = JSON.parse(data.substring(47).slice(0, -2));
                     const rows = json.table.rows;
 
-                    const matches = rows.filter(row =>
+                    currentQueryResults = rows.filter(row =>
                         row.c[0] && row.c[0].v.toLowerCase() === item
                     ).map(row => ({
                         store: row.c[1].v,
@@ -1207,68 +1394,96 @@
                         distance: getDistance(userLat, userLng, row.c[5].v, row.c[6].v)
                     }));
 
-                    if (matches.length === 0) {
-                        document.getElementById('results').innerHTML = `
-                            <div class="no-results">
-                                <p>😕 ${t.noResults} "<strong>${item}</strong>"</p>
-                                <p style="margin-top:8px; font-size:0.85rem;">${t.noResultsSub}</p>
-                            </div>`;
+                    if (currentQueryResults.length === 0) {
                         trackEvent("no_results", { query: item });
-                        return;
+                    } else {
+                        const nearestDistance = Math.min(...currentQueryResults.map(m => parseFloat(m.distance)));
+                        if (nearestDistance > COVERAGE_RADIUS_KM) {
+                            trackEvent("out_of_coverage", {
+                                query: item,
+                                nearest_km: nearestDistance,
+                                user_lat: userLat,
+                                user_lng: userLng
+                            });
+                        } else {
+                            const sortedForTracking = [...currentQueryResults].sort((a, b) => a.price - b.price);
+                            trackEvent("results_viewed", {
+                                query: item,
+                                results_count: currentQueryResults.length,
+                                cheapest_store: sortedForTracking[0].store,
+                                cheapest_price: sortedForTracking[0].price
+                            });
+                        }
                     }
 
-                    // Check coverage: is the nearest matching store within our tracked radius?
-                    const nearestDistance = Math.min(...matches.map(m => parseFloat(m.distance)));
-
-                    if (nearestDistance > COVERAGE_RADIUS_KM) {
-                        document.getElementById('results').innerHTML = `
-                            <div class="not-covered">
-                                <div class="icon">🗺️</div>
-                                <p><strong>${t.notCovered}</strong></p>
-                                <p class="sub">${t.notCoveredSub}</p>
-                            </div>`;
-                        trackEvent("out_of_coverage", {
-                            query: item,
-                            nearest_km: nearestDistance,
-                            user_lat: userLat,
-                            user_lng: userLng
-                        });
-                        return;
-                    }
-
-                    matches.sort((a, b) => a.price - b.price);
-
-                    trackEvent("results_viewed", {
-                        query: item,
-                        results_count: matches.length,
-                        cheapest_store: matches[0].store,
-                        cheapest_price: matches[0].price
-                    });
-
-                    let html = `<div class="results-header">${t.showingResults} <span>"${item}"</span> — ${matches.length} ${t.storesFound}</div>`;
-                    html += '<div class="cards-grid">';
-
-                    matches.forEach((store, index) => {
-                        const isBest = index === 0;
-                        html += `
-                            <div class="store-card ${isBest ? 'best' : ''}">
-                                ${isBest ? `<div class="best-badge">${t.bestPrice}</div>` : ''}
-                                <div class="card-store-name">${store.store}</div>
-                                <div class="card-address">📍 ${store.address}</div>
-                                <div class="card-bottom">
-                                    <div class="card-price">€${store.price.toFixed(2)}</div>
-                                    <div class="card-distance">${store.distance} ${t.kmAway}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    html += '</div>';
-                    document.getElementById('results').innerHTML = html;
+                    renderFilteredResults();
                 })
                 .catch(() => {
                     document.getElementById('results').innerHTML = `<div class="no-results">Error loading data. Please try again.</div>`;
                 });
+        }
+
+        // Renders currentQueryResults filtered down to the slider's max distance.
+        // Called both after a fresh search and whenever the slider moves.
+        function renderFilteredResults() {
+            const t = translations[currentLang];
+            const item = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            if (currentQueryResults.length === 0) {
+                document.getElementById('results').innerHTML = `
+                    <div class="no-results">
+                        <p>😕 ${t.noResults} "<strong>${item}</strong>"</p>
+                        <p style="margin-top:8px; font-size:0.85rem;">${t.noResultsSub}</p>
+                    </div>`;
+                return;
+            }
+
+            // Check coverage against the full (unfiltered) result set for the query
+            const nearestDistance = Math.min(...currentQueryResults.map(m => parseFloat(m.distance)));
+            if (nearestDistance > COVERAGE_RADIUS_KM) {
+                document.getElementById('results').innerHTML = `
+                    <div class="not-covered">
+                        <div class="icon">🗺️</div>
+                        <p><strong>${t.notCovered}</strong></p>
+                        <p class="sub">${t.notCoveredSub}</p>
+                    </div>`;
+                return;
+            }
+
+            const matches = currentQueryResults.filter(m => parseFloat(m.distance) <= maxDistanceKm);
+
+            if (matches.length === 0) {
+                document.getElementById('results').innerHTML = `
+                    <div class="no-results">
+                        <p>😕 No stores found for "<strong>${item}</strong>" within ${maxDistanceKm} km.</p>
+                        <p style="margin-top:8px; font-size:0.85rem;">Try increasing the distance slider.</p>
+                    </div>`;
+                return;
+            }
+
+            matches.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+            const bestPrice = Math.min(...matches.map(m => m.price));
+
+            let html = `<div class="results-header">${t.showingResults} <span>"${item}"</span> — ${matches.length} ${t.storesFound}</div>`;
+            html += '<div class="cards-grid">';
+
+            matches.forEach((store, index) => {
+                const isBest = store.price === bestPrice;
+                html += `
+                    <div class="store-card ${isBest ? 'best' : ''}">
+                        ${isBest ? `<div class="best-badge">${t.bestPrice}</div>` : ''}
+                        <div class="card-store-name">${store.store}</div>
+                        <div class="card-address">📍 ${store.address}</div>
+                        <div class="card-bottom">
+                            <div class="card-price">€${store.price.toFixed(2)}</div>
+                            <div class="card-distance">${store.distance} ${t.kmAway}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            document.getElementById('results').innerHTML = html;
         }
 
 // ─── INIT ─────────────────────────────────────────────
