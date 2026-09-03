@@ -6,3 +6,4 @@ venv/
 .vercel
 .env*
 .vscode
+icons/
