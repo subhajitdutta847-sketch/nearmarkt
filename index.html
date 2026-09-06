@@ -1697,7 +1697,7 @@
         }
 
 // ─── INIT ─────────────────────────────────────────────
-        window.addEventListener('DOMContentLoaded', detectLanguage);
+        detectLanguage();
 
         // Only show location modal once per session
         if (!sessionStorage.getItem('locationAsked')) {
