@@ -1495,6 +1495,7 @@
         function changeLanguage(lang) {
             currentLang = lang;
             applyLanguage(lang);
+            renderFilteredResults();
             document.body.classList.toggle('rtl', lang === 'ar');
             trackEvent("language_changed", { language: lang });
         }
