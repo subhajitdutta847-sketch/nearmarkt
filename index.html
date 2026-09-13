@@ -1668,7 +1668,7 @@
                                 user_lng: userLng
                             });
                         } else {
-                            const sortedForTracking = [...currentQueryResults].sort((a, b) => a.price - b.price);
+                            const sortedForTracking = [...currentQueryResults].sort((a, b) => a.price - b.price || parseFloat(a.distance) - parseFloat(b.distance));
                             trackEvent("results_viewed", {
                                 query: item,
                                 results_count: currentQueryResults.length,
@@ -1723,7 +1723,7 @@
                 return;
             }
 
-            matches.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+            matches.sort((a, b) => a.price - b.price || parseFloat(a.distance) - parseFloat(b.distance));
             const bestPrice = Math.min(...matches.map(m => m.price));
 
             let html = `<div class="results-header">${t.showingResults} <span>"${item}"</span> — ${matches.length} ${t.storesFound}</div>`;
